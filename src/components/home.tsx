@@ -25,7 +25,7 @@ const Home = ({
     React.useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 pb-8">
       <main className="container mx-auto px-4 py-8 space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
