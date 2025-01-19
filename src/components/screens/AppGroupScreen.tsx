@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Edit, Trash2, X, Search } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -82,6 +83,10 @@ export const AppGroupScreen = () => {
       setGroups([...groups, newGroup]);
       setNewGroupName("");
       setIsAddingGroup(false);
+      toast({
+        title: "Group Created",
+        description: `${newGroupName} has been created successfully.`,
+      });
     }
   };
 
@@ -105,11 +110,22 @@ export const AppGroupScreen = () => {
         ),
       );
       setIsEditingApps(false);
+      toast({
+        title: "Apps Updated",
+        description: `${selectedGroup.name} apps have been updated.`,
+      });
     }
   };
 
   const handleDeleteGroup = (groupId: string) => {
-    setGroups(groups.filter((group) => group.id !== groupId));
+    const groupToDelete = groups.find((g) => g.id === groupId);
+    if (groupToDelete) {
+      setGroups(groups.filter((group) => group.id !== groupId));
+      toast({
+        title: "Group Deleted",
+        description: `${groupToDelete.name} has been deleted.`,
+      });
+    }
   };
 
   const filteredApps = installedApps.filter(
@@ -130,167 +146,175 @@ export const AppGroupScreen = () => {
   );
 
   return (
-    <Card className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">App Groups</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your app restrictions by groups
-          </p>
-        </div>
-        <Button onClick={() => setIsAddingGroup(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Group
-        </Button>
-      </div>
-
-      <Accordion type="single" collapsible className="space-y-4">
-        {groups.map((group) => (
-          <AccordionItem
-            key={group.id}
-            value={group.id}
-            className="border rounded-lg p-4"
-          >
-            <div className="flex items-center justify-between">
-              <AccordionTrigger className="hover:no-underline">
-                <span className="text-lg font-medium">{group.name}</span>
-              </AccordionTrigger>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditApps(group);
-                  }}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Apps
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteGroup(group.id);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <AccordionContent>
-              <div className="mt-4 space-y-2">
-                {group.apps.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No apps in this group
-                  </p>
-                ) : (
-                  group.apps.map((app) => (
-                    <div
-                      key={app.id}
-                      className="flex items-center justify-between p-2 rounded-md bg-secondary"
-                    >
-                      <div>
-                        <span className="font-medium">{app.name}</span>
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          {app.category}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
-
-      <Dialog open={isAddingGroup} onOpenChange={setIsAddingGroup}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Group</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Enter group name"
-              value={newGroupName}
-              onChange={(e) => setNewGroupName(e.target.value)}
-            />
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsAddingGroup(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddGroup}>Add Group</Button>
-            </div>
+    <div className="container mx-auto px-4 py-8">
+      <Card className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">App Groups</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage your app restrictions by groups
+            </p>
           </div>
-        </DialogContent>
-      </Dialog>
+          <Button onClick={() => setIsAddingGroup(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Group
+          </Button>
+        </div>
 
-      <Dialog open={isEditingApps} onOpenChange={setIsEditingApps}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Apps in {selectedGroup?.name}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search apps..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <div className="max-h-[400px] overflow-y-auto space-y-4">
-              {Object.entries(groupedApps).map(([category, apps]) => (
-                <div key={category} className="space-y-2">
-                  <h3 className="font-medium text-sm text-muted-foreground">
-                    {category}
-                  </h3>
-                  <div className="space-y-2">
-                    {apps.map((app) => (
+        <Accordion type="single" collapsible className="space-y-4">
+          {groups.map((group) => (
+            <AccordionItem
+              key={group.id}
+              value={group.id}
+              className="border rounded-lg p-4"
+            >
+              <div className="flex items-center justify-between">
+                <AccordionTrigger className="hover:no-underline">
+                  <span className="text-lg font-medium">{group.name}</span>
+                </AccordionTrigger>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditApps(group);
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Apps
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteGroup(group.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+              <AccordionContent>
+                <div className="mt-4 space-y-2">
+                  {group.apps.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No apps in this group
+                    </p>
+                  ) : (
+                    group.apps.map((app) => (
                       <div
                         key={app.id}
-                        className="flex items-center space-x-3 p-2 rounded-md hover:bg-accent"
+                        className="flex items-center justify-between p-2 rounded-md bg-secondary"
                       >
-                        <Checkbox
-                          id={app.id}
-                          checked={selectedApps.includes(app.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedApps([...selectedApps, app.id]);
-                            } else {
-                              setSelectedApps(
-                                selectedApps.filter((id) => id !== app.id),
-                              );
-                            }
-                          }}
-                        />
-                        <label
-                          htmlFor={app.id}
-                          className="flex-1 flex items-center justify-between cursor-pointer"
-                        >
-                          <span>{app.name}</span>
-                        </label>
+                        <div>
+                          <span className="font-medium">{app.name}</span>
+                          <span className="ml-2 text-sm text-muted-foreground">
+                            {app.category}
+                          </span>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    ))
+                  )}
                 </div>
-              ))}
-            </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
 
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsEditingApps(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveApps}>Save Changes</Button>
+        <Dialog open={isAddingGroup} onOpenChange={setIsAddingGroup}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Group</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Enter group name"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+              />
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddingGroup(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleAddGroup}>Add Group</Button>
+              </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </Card>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditingApps} onOpenChange={setIsEditingApps}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Apps in {selectedGroup?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search apps..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <div className="max-h-[400px] overflow-y-auto space-y-4">
+                {Object.entries(groupedApps).map(([category, apps]) => (
+                  <div key={category} className="space-y-2">
+                    <h3 className="font-medium text-sm text-muted-foreground">
+                      {category}
+                    </h3>
+                    <div className="space-y-2">
+                      {apps.map((app) => (
+                        <div
+                          key={app.id}
+                          className="flex items-center space-x-3 p-2 rounded-md hover:bg-accent"
+                        >
+                          <Checkbox
+                            id={app.id}
+                            checked={selectedApps.includes(app.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedApps([...selectedApps, app.id]);
+                              } else {
+                                setSelectedApps(
+                                  selectedApps.filter((id) => id !== app.id),
+                                );
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={app.id}
+                            className="flex-1 flex items-center justify-between cursor-pointer"
+                          >
+                            <span>{app.name}</span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditingApps(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveApps}>Save Changes</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </Card>
+    </div>
   );
 };
 

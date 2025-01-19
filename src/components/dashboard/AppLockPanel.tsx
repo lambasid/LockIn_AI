@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Lock, Unlock } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface AppLockItem {
   id: string;
@@ -24,10 +25,25 @@ const defaultApps: AppLockItem[] = [
   { id: "5", name: "Games", isLocked: false, category: "Entertainment" },
 ];
 
-const AppLockPanel: React.FC<AppLockPanelProps> = ({
-  apps = defaultApps,
-  onToggleLock = () => {},
-}) => {
+const AppLockPanel: React.FC<AppLockPanelProps> = () => {
+  const [apps, setApps] = React.useState<AppLockItem[]>(defaultApps);
+
+  const handleToggleLock = (appId: string) => {
+    setApps((prevApps) =>
+      prevApps.map((app) => {
+        if (app.id === appId) {
+          const newState = !app.isLocked;
+          toast({
+            title: `${app.name} ${newState ? "Locked" : "Unlocked"}`,
+            description: `${app.name} has been ${newState ? "locked" : "unlocked"}.`,
+          });
+          return { ...app, isLocked: newState };
+        }
+        return app;
+      }),
+    );
+  };
+
   return (
     <Card className="w-full p-6 bg-white">
       <div className="space-y-6">
@@ -59,7 +75,7 @@ const AppLockPanel: React.FC<AppLockPanelProps> = ({
               </div>
               <Switch
                 checked={app.isLocked}
-                onCheckedChange={() => onToggleLock(app.id)}
+                onCheckedChange={() => handleToggleLock(app.id)}
                 aria-label={`Toggle ${app.name} lock`}
               />
             </div>
