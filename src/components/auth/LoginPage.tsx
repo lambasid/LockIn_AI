@@ -22,7 +22,7 @@ export const LoginPage = () => {
         <div className="flex flex-col items-center justify-center">
           <div className="mx-auto w-24 h-24 hover:scale-110 transition-transform duration-300 ease-in-out hover:rotate-6">
             <img
-              src="/public/images/lock.png"
+              src="/public/lock.png"
               alt="Lock Icon"
               className="w-full h-full object-contain animate-bounce"
             />
